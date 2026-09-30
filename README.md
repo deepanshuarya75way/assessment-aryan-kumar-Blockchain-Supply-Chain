@@ -1,3 +1,43 @@
+# Prerequisites 
+
+Make sure you have installed:
+
+_Node.js 22+
+_Git 
+
+# Run the project 
+
+Clone the repository:
+
+git clone https://github.com/Aryan-0701-pixel/Blockchain-Supply-Chain.git 
+
+cd Blockchain-Supply-Chain
+
+# Install dependencies 
+
+npm install
+
+Create your .env file 
+
+Then start the complete application with one command:
+
+npm start 
+
+That's It!!!
+
+
+# For Interviewers
+
+You do not need to manuaaly run separate commands for the blockchain, smart contrat deployment, backend or frontend;
+
+Simply run:
+
+npm install
+npm start
+
+The Complete Blockchain Supply Chain application will start automatically.
+
+
 # Blockchain Supply Chain Tracking System
 
 A blockchain-based supply chain tracking system that records product information and movement history on the Ethereum blockchain.
@@ -6,7 +46,7 @@ The project provides a transparent and tamper-resistant way to track products fr
 
 ---
 
-## 🚀 Features
+## Features
 
 - Add new products to the blockchain
 - Store product name and origin
@@ -22,7 +62,7 @@ The project provides a transparent and tamper-resistant way to track products fr
 
 ---
 
-## 🛠️ Technologies Used
+## Technologies Used
 
 ### Blockchain
 
@@ -53,7 +93,7 @@ The project provides a transparent and tamper-resistant way to track products fr
 
 ---
 
-## 🏗️ Project Architecture
+## Project Architecture
 
 ```text
 Frontend
