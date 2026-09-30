@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Supply Chain Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+body {
+  margin: 0;
+  font-family: "Segoe UI", sans-serif;
+  display: flex;
+  background: #f4f6f9;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 220px;
+  background: #111827;
+  color: white;
+  height: 100vh;
+  padding: 20px;
+}
+
+.sidebar h2 {
+  margin-bottom: 30px;
+}
+
+.sidebar button {
+  width: 100%;
+  margin: 10px 0;
+  padding: 10px;
+  background: #1f2937;
+  border: none;
+  color: white;
+  cursor: pointer;
+}
+
+/* Main */
+.main {
+  flex: 1;
+  padding: 20px;
+}
+
+/* Cards */
+.cards {
+  display: flex;
+  gap: 20px;
+}
+
+.card {
+  flex: 1;
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+/* Sections */
+.section {
+  margin-top: 20px;
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+/* Inputs */
+input {
+  padding: 10px;
+  margin: 5px;
+  width: 200px;
+}
+
+/* Timeline */
+.timeline {
+  border-left: 3px solid #111827;
+  margin-top: 10px;
+  padding-left: 15px;
+}
+
+.step {
+  margin-bottom: 15px;
+  position: relative;
+}
+
+.step::before {
+  content: "";
+  position: absolute;
+  left: -24px;
+  top: 5px;
+  width: 15px;
+  height: 15px;
+  background: #3b82f6;
+  border-radius: 50%;
+}
+
+canvas {
+  margin-top: 20px;
+}
+</style>
+</head>
+
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar">
+  <h2>📦 SupplyChain</h2>
+  <button onclick="showSection('add')">Add Product</button>
+  <button onclick="showSection('move')">Update Movement</button>
+  <button onclick="showSection('track')">Track Product</button>
+</div>
+
+<!-- Main -->
+<div class="main">
+
+  <!-- KPI Cards -->
+  <div class="cards">
+    <div class="card">
+      <h3>Total Products</h3>
+      <p id="total">0</p>
+    </div>
+    <div class="card">
+      <h3>Last Location</h3>
+      <p id="lastLoc">-</p>
+    </div>
+  </div>
+
+  <!-- Add -->
+  <div id="add" class="section">
+    <h3>Add Product</h3>
+    <input id="name" placeholder="Product Name">
+    <input id="origin" placeholder="Origin">
+    <button onclick="addProduct()">Add</button>
+    
+  <h2>📦 All Products Dashboard</h2>
+
+<button onclick="loadAllProducts()">🔄 Refresh Products</button>
+
+<div id="productList" style="margin-top:20px;"></div>
+  </div>
+
+  <!-- Move -->
+  <div id="move" class="section" style="display:none;">
+    <h3>Update Movement</h3>
+    <input id="moveId" placeholder="Product ID">
+    <input id="location" placeholder="Location">
+    <button onclick="moveProduct()">Update</button>
+  </div>
+
+  <!-- Track -->
+  <div id="track" class="section" style="display:none;">
+    <h3>Track Product</h3>
+    <input id="trackId" placeholder="Product ID">
+    <button onclick="trackProduct()">Track</button>
+
+    <div id="result"></div>
+  </div>
+
+
+  <!-- Chart -->
+  <canvas id="chart" height="120"></canvas>
+
+</div>
+
+<script>
+const API = "http://localhost:3000";
+
+// Navigation
+function showSection(id) {
+  document.getElementById("add").style.display = "none";
+  document.getElementById("move").style.display = "none";
+  document.getElementById("track").style.display = "none";
+  document.getElementById(id).style.display = "block";
+}
+
+// Add Product
+async function addProduct() {
+  const name = document.getElementById("name").value;
+  const origin = document.getElementById("origin").value;
+
+  const res = await fetch("http://localhost:3000/add", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name, origin })
+  });
+
+  const data = await res.json();
+
+  document.getElementById("result").innerHTML = `
+    <div style="
+      padding:15px;
+      border:1px solid #ddd;
+      border-radius:10px;
+      background:#f9f9f9;
+      margin-top:10px;
+    ">
+      <h3>✅ Product Added Successfully</h3>
+      <p><b>🆔 Product ID:</b> ${data.productId}</p>
+      <p><b>📦 Name:</b> ${name}</p>
+      <p><b>📍 Origin:</b> ${origin}</p>
+    </div>
+  `;
+}
+
+// Move Product
+async function moveProduct() {
+  const id = document.getElementById("moveId").value;
+  const location = document.getElementById("location").value;
+
+  await fetch(API + "/move", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({ id, location })
+  });
+
+  alert("Movement Updated");
+}
+
+// Track Product
+async function trackProduct() {
+  const id = document.getElementById("trackId").value;
+
+  const res = await fetch(API + "/history/" + id);
+  const data = await res.json();
+
+  let html = "<div class='timeline'>";
+  data.forEach(step => {
+    html += `
+      <div class="step">
+        ${step.location}<br>
+        <small>${new Date(step.timestamp * 1000).toLocaleString()}</small>
+      </div>
+    `;
+  });
+  html += "</div>";
+
+  document.getElementById("result").innerHTML = html;
+
+  document.getElementById("total").innerText = data.length;
+  document.getElementById("lastLoc").innerText = data[data.length - 1].location;
+
+  renderChart(data);
+}
+
+// Chart
+function renderChart(data) {
+  const ctx = document.getElementById("chart");
+
+  const labels = data.map((_, i) => "Step " + (i+1));
+  const values = data.map((_, i) => i+1);
+
+  if (window.chart) window.chart.destroy();
+
+  window.chart = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels,
+      datasets: [{
+        label: "Movement Flow",
+        data: values
+      }]
+    }
+  });
+}
+
+async function loadAllProducts() {
+  try {
+    const res = await fetch("http://localhost:3000/products");
+    const data = await res.json();
+
+    let html = "";
+
+    if (data.length === 0) {
+      html = "<p>No products found</p>";
+    }
+
+    data.forEach((p) => {
+      html += `
+        <div style="
+          border:1px solid #ddd;
+          padding:12px;
+          margin:10px 0;
+          border-radius:10px;
+          background:#f9f9f9;
+        ">
+          <h3>📦 ${p.name[0]}</h3>
+          <p><b>🆔 ID:</b> ${p.id}</p>
+          <p><b>📍 Origin:</b> ${p.name[1]}</p>
+
+          <button onclick="track(${p.id})">
+            🔍 Track Product
+          </button>
+        </div>
+      `;
+    });
+
+    document.getElementById("productList").innerHTML = html;
+
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+
+
+</script>
+
+</body>
+</html>

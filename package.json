@@ -1,0 +1,23 @@
+{
+  "name": "blockchain-supply-chain",
+  "version": "1.0.0",
+  "description": "Blockchain-based supply chain tracking system",
+  "type": "module",
+  "scripts": {
+    "compile": "hardhat compile",
+    "node": "hardhat node",
+    "deploy": "hardhat run scripts/deploy.cjs --network localhost",
+    "server": "node server.js",
+    "start": "node start.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^18.0.4",
+    "ethers": "^5.8.0",
+    "express": "^4.21.2"
+  },
+  "devDependencies": {
+    "@nomiclabs/hardhat-ethers": "^2.2.3",
+    "hardhat": "^2.28.6"
+  }
+}
