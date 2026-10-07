@@ -5,24 +5,67 @@ import fs from "fs";
 import dotenv from "dotenv";
 dotenv.config();
 
-const app = express();
-app.use(cors());
-app.use(express.json());
+
+// -------------------------
+// ENCRYPTION
+// -------------------------
+// const ENCRYPTION_KEY = crypto
+//   .createHash("sha256")
+//   .update(process.env.ENCRYPTION_SECRET)
+//   .digest();
+
+//   const IV_LENGTH = 16;
+
+//   function encrypt(text) {
+//     const iv = crypt.randomBytes(IV_LENGTH);
+
+//     const cipher = crypto.createCipheriv(
+//       "aes-256-cbc", ENCRYPTION_KEY, iv
+//     );
+
+//     let encrypted = cipher.update(text, "utf8", "hex");
+//     encrypted += cipher.final("hex");
+
+//     return `${iv.toString("hex")}:${encrypted}`;
+//   }
+
+//   // -------------------------
+//   // DECRYTION
+//   // -------------------------
+
+//   function decrypt(text) {
+//     const parts = text.split(":");
+    
+//     const iv = Buffer.from(parts[0], "hex");
+//     const encrytedText = parts[1];
+
+//     const decipher = crypto.createDecipheriv(
+//       "aes-256-cbc",
+//       ENCRYPTION_KEY, iv
+//     );
+
+//     let decrypted = decipher.update(encrytedText, "hex", "utf8");
+//     decrypted += decipher.final("utf8");
+
+//     return decrypted;
+//   }
+
+
+// const app = express();
+// app.use(cors());
+// app.use(express.json());
 
 // =========================
-// 🔗 CONNECT TO HARDHAT NODE
+//  CONNECT TO HARDHAT NODE
 // =========================
-const provider = new ethers.providers.JsonRpcProvider(
-  process.env.RPC_URL
-);
-
+//
 // Hardhat Account #0 (SAFE FOR DEV ONLY)
-const privateKey = process.env.PRIVATE_KEY;
+// const privateKey = process.env.PRIVATE_KEY;
 
-const wallet = new ethers.Wallet(privateKey, provider);
+// const wallet = new ethers.Wallet(privateKey, provider);
 
 // =========================
-// 📄 LOAD CONTRACT ABI
+//  LOAD CONTRACT ABI
 // =========================
 const abi = JSON.parse(
   fs.readFileSync(
@@ -32,7 +75,7 @@ const abi = JSON.parse(
 ).abi;
 
 // =========================
-// 📍 CONTRACT ADDRESS
+//  CONTRACT ADDRESS
 // =========================
 const contractAddress = JSON.parse(
   fs.readFileSync("./contract-address.json", "utf8")
@@ -41,24 +84,24 @@ const contractAddress = JSON.parse(
 const contract = new ethers.Contract(contractAddress, abi, wallet);
 
 // =========================
-// 🚀 ADD PRODUCT (with origin)
+// ADD PRODUCT (with origin)
 // =========================
 app.post("/add", async (req, res) => {
   try {
     const { name, origin } = req.body;
 
-    const tx = await contract.addProduct(name, origin);
+    const tx = await
+    contract.addProduct(name, origin);
     await tx.wait();
 
-    // safer way: productCount from contract
     const count = await contract.getTotalProducts();
     const productId = Number(count) - 1;
 
-    console.log("New Product ID:", productId);
-
+    conole.log("New product ID : ", productId);
+  
     res.json({
       success: true,
-      productId: productId
+      productId : productId;
     });
 
   } catch (err) {
@@ -68,12 +111,12 @@ app.post("/add", async (req, res) => {
 });
 
 // =========================
-// 🔄 ADD MOVEMENT
+//  ADD MOVEMENT
 // =========================
 app.post("/move", async (req, res) => {
   try {
     const { id, location } = req.body;
-
+        
     const tx = await contract.addMovement(id, location);
     await tx.wait();
 
@@ -84,7 +127,7 @@ app.post("/move", async (req, res) => {
 });
 
 // =========================
-// 📦 GET PRODUCT LIST (for UI IDs)
+//  GET PRODUCT LIST (for UI IDs)
 // =========================
 app.get("/products", async (req, res) => {
   try {
@@ -106,7 +149,7 @@ app.get("/products", async (req, res) => {
 });
 
 // =========================
-// 📜 TRACK FULL HISTORY
+//  TRACK FULL HISTORY
 // =========================
 app.get("/history/:id", async (req, res) => {
   try {
@@ -124,7 +167,7 @@ app.get("/history/:id", async (req, res) => {
 });
 
 // =========================
-// 🚀 START SERVER
+// START SERVER
 // =========================
 app.listen(3000, () => {
   console.log("🚀 Server running on http://localhost:3000");

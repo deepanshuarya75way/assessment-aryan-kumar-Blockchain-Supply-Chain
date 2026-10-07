@@ -4,7 +4,7 @@ pragma solidity ^0.8.20;
 contract SupplyChain {
 
     // =========================
-    // 📦 DATA STRUCTURES
+    // DATA STRUCTURES
     // =========================
 
     struct Movement {
@@ -15,6 +15,7 @@ contract SupplyChain {
     struct Product {
         string name;
         string origin;
+    
         Movement[] history;
         bool exists;
     }
@@ -40,8 +41,28 @@ contract SupplyChain {
         productCount++;
     }
 
+
+    //--------------------------
+    // Product Identifier
+    // -------------------------
+
+    function getproductIdentifier(uint256 _id)
+        public
+        view
+        returns(
+            string memory name,
+            string memory origin
+        )
+        {
+            require (
+                products[_id].exists,
+                "Product not found"
+            );
+        }
+
+
     // =========================
-    // 🔄 ADD MOVEMENT (TRACKING)
+    //  ADD MOVEMENT (TRACKING)
     // =========================
 
     function addMovement(uint256 _id, string memory _location) public {
@@ -53,7 +74,7 @@ contract SupplyChain {
     }
 
     // =========================
-    // 📦 GET PRODUCT DETAILS
+    //  GET PRODUCT DETAILS
     // =========================
 
     function getProduct(uint256 _id)
@@ -68,7 +89,7 @@ contract SupplyChain {
     }
 
     // =========================
-    // 📜 GET FULL HISTORY
+    //  GET FULL HISTORY
     // =========================
 
     function getHistory(uint256 _id)
@@ -82,7 +103,7 @@ contract SupplyChain {
     }
 
     // =========================
-    // 📊 GET TOTAL PRODUCTS
+    // GET TOTAL PRODUCTS
     // =========================
 
     function getTotalProducts() public view returns (uint256) {
